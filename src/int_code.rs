@@ -6,13 +6,7 @@ use csv::{ReaderBuilder};
 pub struct IntCode {
     memory: Vec<i32>,
     current_state: Vec<i32>,
-    instr_ptr: usize,
-    complete: bool
-}
-
-enum Params {
-    Add(usize, usize, usize),
-    Mult(usize, usize, usize)
+    instr_ptr: usize
 }
 
 impl IntCode {
@@ -37,16 +31,18 @@ impl IntCode {
         }
     }
 
-    pub fn process_inputs(&self, noun: i32, verb: i32) {
+    pub fn process_inputs(&mut self, noun: i32, verb: i32) -> i32 {
         self.current_state = self.memory.to_vec();
+        self.current_state[1] = noun;
+        self.current_state[2] = verb;
         self.instr_ptr = 0; 
 
         loop {
             let instr = self.current_state[self.instr_ptr];
 
             match instr {
-                1 => self.add_instr(),
-                2 => self.mult_instr(),
+                1 => self.math_instr(|n1, n2| n1 + n2),
+                2 => self.math_instr(|n1, n2| n1 * n2),
                 99 => break,
                 _ => {
                     println!("invalid instr reached, {}", instr);
@@ -54,47 +50,20 @@ impl IntCode {
                 }
             };
         }
+
+        self.current_state[0]
     }
 
-    fn math_instr(op: fn(i32) -> i32)
-
-    fn add_instr(&self) {
+    fn math_instr<F>(&mut self, op: F) where
+        F: Fn(i32, i32) -> i32 {
         let c_state = &self.current_state;
         let i_ptr = self.instr_ptr;
 
-        let left = c_state[i_ptr + 1];
-        let right = c_state[i_ptr + 2];
+        let left = c_state[c_state[i_ptr + 1] as usize];
+        let right = c_state[c_state[i_ptr + 2] as usize];
         let dest = c_state[i_ptr + 3] as usize; 
-
-        self.current_state[dest] = left + right;
-    }
-
-    fn mult_instr(&self) {
-        let c_state = &self.current_state;
-        let i_ptr = self.instr_ptr;
-
-        let left = c_state[i_ptr + 1];
-        let right = c_state[i_ptr + 2];
-        let dest = c_state[i_ptr + 3] as usize; 
-
-        self.current_state[dest] = left * right;
-    }
-
-    fn check_eop(&self, instr_len: usize) -> Params {
-
-        Params::Ok
-    }
-
-    fn extract_params(&self, param_cnt: usize) -> Vec<i32> {
-        let params: Vec<i32> = Vec::new();
-
-        let i_ptr = self.instr_ptr;
-
-        for param_i in i_ptr..(i_ptr + param_cnt) {
-            params.push(self.current_state[param_i]);
-            self.instr_ptr += 1;
-        }
-
-        params
+        
+        self.current_state[dest] = op(left, right);
+        self.instr_ptr += 4;
     }
 }

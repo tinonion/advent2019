@@ -1,0 +1,5 @@
+.vscode/
+data/
+target/
+Cargo.lock
+Cargo.toml

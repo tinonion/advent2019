@@ -1,35 +1,21 @@
 use crate::int_code;
 use crate::util;
 
-enum Status {
-    Ok,
-    Halt,
-    Invalid
-}
-
-fn do_op(opcodes: &mut Vec<i32>, ind: usize) -> Status {
-    let op = opcodes[ind];
-
-    let left = opcodes[ind + 1] as usize;
-    let right = opcodes[ind + 2] as usize;
-    let dest = opcodes[ind + 3] as usize;
-
-    let new = match op {
-        99 => return Status::Halt,
-        1 => opcodes[left] + opcodes[right],
-        2 => opcodes[left] * opcodes[right],
-        _ => return Status::Invalid,
-    };
-
-    opcodes[dest] = new;
-
-    Status::Ok
-}
-
 pub fn solve() {
     let file = util::get_input(2); 
 
-    let int_code = int_code::IntCode::new(&file);
+    let mut int_code = int_code::IntCode::new(&file);
 
-    println!("value at first index: {}", 0);
+    println!("part 1: {}", int_code.process_inputs(12, 2));
+
+    let desired = 19690720;
+
+    for noun in 0..100 {
+        for verb in 0..100 {
+            if desired == int_code.process_inputs(noun, verb) {
+                println!("part 2: {}", 100 * noun + verb);
+                break;
+            }
+        }
+    }
 }
