@@ -1,7 +1,9 @@
+#[allow(dead_code)]
+
 use std::fs::File;
 use std::vec::Vec;
 
-use csv::{ReaderBuilder};
+use csv::Reader;
 
 pub struct IntCode {
     memory: Vec<i32>,
@@ -10,15 +12,10 @@ pub struct IntCode {
 }
 
 impl IntCode {
-    pub fn new(input: &File) -> IntCode {
-        // build csv reader, then parse in fields
-        let mut reader = ReaderBuilder::new()
-            .has_headers(false)        
-            .from_reader(input);
-
+    pub fn new(mut input: Reader<File>) -> IntCode {
         let mut opcodes: Vec<i32> = Vec::new(); 
 
-        for record in reader.records() {
+        for record in input.records() {
             for code in record.unwrap().iter() {
                 opcodes.push(code.parse().unwrap());
             }
