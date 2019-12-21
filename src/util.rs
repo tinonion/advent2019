@@ -1,6 +1,7 @@
 #[allow(dead_code)]
 
 use std::fs::File;
+use std::io::BufReader;
 use std::path::PathBuf;
 
 fn find_data_path(day: u32, dir: &str, ext: &str) -> String {
@@ -22,4 +23,10 @@ pub fn get_test_input(day: u32) -> File {
     let path = find_data_path(day, "./data", ".test");
 
     File::open(&path).expect(&format!("unable to open input file: {:?}", &path))
+}
+
+pub fn get_input_line_reader(day: u32) -> BufReader<File> {
+    let input_file = get_input(day);
+
+    BufReader::new(input_file)
 }
